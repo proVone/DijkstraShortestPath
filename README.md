@@ -4,7 +4,10 @@ DijkstraShortestPath is an implementation of Dijkstra's algorithm to find the sh
 
 ## Installation
 
+Download as .zip and extract.
+
 Ensure the java path is set and you're using Java jdk-17+
+
 Open this folder in command prompt and execute the following:
 
 ```
