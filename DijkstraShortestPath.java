@@ -92,11 +92,18 @@ public class DijkstraShortestPath {
 
         //Print the shortest distance, the path, and the time taken if you move at 17km/hr
         if (distances.get(targetNode) != Integer.MAX_VALUE) {
+            
+            //Print shortest distances
             System.out.println("Shortest distance from s to f: " + distances.get(targetNode) + " km");
+            //Call getPath method to reconstruct the path 
             System.out.println("Path: " + getPath(previousNodes, targetNode));
+
+            //calculate time taken from given speed of 17km/hr
             Double timeTaken = distances.get(targetNode)/17.0;
+            //downcast and round to minutes as it is usually more useful
             Integer minutesTaken = (int) Math.round(timeTaken * 60);
             BigDecimal roundedTimeTaken = new BigDecimal(timeTaken).setScale(2, RoundingMode.HALF_UP);
+            //Print our time
             System.out.println("It will take " + roundedTimeTaken + " hours to take this path or " + minutesTaken + " minutes." );
 
         } else {
