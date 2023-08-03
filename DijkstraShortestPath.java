@@ -1,5 +1,6 @@
 import java.util.*;
 import java.math.*;
+import java.io.*;
 
 public class DijkstraShortestPath {
     public static void main(String[] args) {
@@ -10,122 +11,82 @@ public class DijkstraShortestPath {
         Scanner scanner = new Scanner(System.in);
 
         //Prompt the user to enter the cities and destinations
-        System.out.println("Enter the cities in the format 'source, distance, destination', or type 'stop' to finish:");
+        System.out.println("Would you like to input data directly or from a .csv file? Type 'direct' or 'file':");
 
-        //Loop through and read inputs until stop is entered
-        while (true) {
-            String input = scanner.nextLine();
+        String inputType = scanner.nextLine();
 
-            if (input.equalsIgnoreCase("stop")) {
-                break;
-            }
+        try {
+            if (inputType.equalsIgnoreCase("direct")) {
+                System.out.println("Enter the cities in the format 'source, distance, destination', or type 'stop' to finish:");
 
-            //Split up the string
-            String[] parts = input.split(", ");
-            //Little bit of validation for the inputs
-            if (parts.length != 3) {
-                System.out.println("Invalid input format. Please try again.");
-                continue;
-            }
+                //Loop through and read inputs until stop is entered
+                while (true) {
+                    String input = scanner.nextLine();
 
-            //extract source destination and distance from the inputs
-            String source = parts[0];
-            String destination = parts[2];
-            int distance;
+                    if (input.equalsIgnoreCase("stop")) {
+                        break;
+                    }
 
-            //Parse the distance as an integer
-            try {
-                distance = Integer.parseInt(parts[1]);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid distance format. Please enter a valid integer distance.");
-                continue;
-            }
-
-            //Add the source and destination if there aren't any
-            graph.putIfAbsent(source, new HashMap<>());
-            graph.putIfAbsent(destination, new HashMap<>());
-            graph.get(source).put(destination, distance);
-        }
-
-        //set the start and finish
-        String sourceNode = "s";
-        String targetNode = "f";
-
-        //Intialize variables for distance and other nodes
-        Map<String, Integer> distances = new HashMap<>();
-        Map<String, String> previousNodes = new HashMap<>();
-        for (String node : graph.keySet()) {
-            distances.put(node, Integer.MAX_VALUE);
-        }
-        distances.put(sourceNode, 0);
-
-        //Keep track of visited nodes
-        Set<String> visited = new HashSet<>();
-
-        //Dijkstra's Algorithm to find the fastest (shortest) path 
-        //Big copy pasta from Chat-GPT for this
-        while (!visited.contains(targetNode)) {
-            String currentNode = null;
-            int minDistance = Integer.MAX_VALUE;
-
-            for (String node : graph.keySet()) {
-                if (!visited.contains(node) && distances.get(node) < minDistance) {
-                    currentNode = node;
-                    minDistance = distances.get(node);
+                    addDataToGraph(graph, input);
                 }
-            }
+            } else if (inputType.equalsIgnoreCase("file")) {
+                System.out.println("Enter the .csv file path:");
 
-            if (currentNode == null) {
-                break;
-            }
+                String filePath = scanner.nextLine();
 
-            visited.add(currentNode);
+                //Open the .csv file
+                File file = new File(filePath);
+                BufferedReader br = new BufferedReader(new FileReader(file));
 
-            for (Map.Entry<String, Integer> neighbor : graph.get(currentNode).entrySet()) {
-                int newDistance = distances.get(currentNode) + neighbor.getValue();
-                if (newDistance < distances.get(neighbor.getKey())) {
-                    distances.put(neighbor.getKey(), newDistance);
-                    previousNodes.put(neighbor.getKey(), currentNode);
+                //Read each line
+                String line;
+                while ((line = br.readLine()) != null) {
+                    addDataToGraph(graph, line);
                 }
+
+                br.close();
+            } else {
+                System.out.println("Invalid input. Please restart the program and choose 'direct' or 'file'.");
+                return;
             }
+        } catch (FileNotFoundException e) {
+            System.out.println("The file was not found. Please check your file path and try again.");
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the file. Please try again.");
         }
 
-        //Print the shortest distance, the path, and the time taken if you move at 17km/hr
-        if (distances.get(targetNode) != Integer.MAX_VALUE) {
-            
-            //Print shortest distances
-            System.out.println("Shortest distance from s to f: " + distances.get(targetNode) + " km");
-            //Call getPath method to reconstruct the path 
-            System.out.println("Path: " + getPath(previousNodes, targetNode));
-
-            //calculate time taken from given speed of 17km/hr
-            Double timeTaken = distances.get(targetNode)/17.0;
-            //downcast and round to minutes as it is usually more useful
-            Integer minutesTaken = (int) Math.round(timeTaken * 60);
-            BigDecimal roundedTimeTaken = new BigDecimal(timeTaken).setScale(2, RoundingMode.HALF_UP);
-            //Print our time
-            System.out.println("It will take " + roundedTimeTaken + " hours to take this path or " + minutesTaken + " minutes." );
-
-        } else {
-            System.out.println("No path exists from s to f.");
-        }
+        //...
+        //Continue with the rest of the program.
     }
 
-    //Method to reconstruct the shortest path
-    private static String getPath(Map<String, String> previousNodes, String targetNode) {
-        List<String> path = new ArrayList<>();
-        path.add(targetNode);
-
-        String currentNode = targetNode;
-
-        //Go through the previous nodes to construct the path
-        while (previousNodes.containsKey(currentNode)) {
-            currentNode = previousNodes.get(currentNode);
-            path.add(currentNode);
+    //Method to add data to graph
+    private static void addDataToGraph(Map<String, Map<String, Integer>> graph, String input) {
+        //Split up the string
+        String[] parts = input.split(", ");
+        //Little bit of validation for the inputs
+        if (parts.length != 3) {
+            System.out.println("Invalid input format. Please try again.");
+            return;
         }
 
-        //Reverse the path and join with arrows into a string
-        Collections.reverse(path);
-        return String.join(" -> ", path);
+        //extract source destination and distance from the inputs
+        String source = parts[0];
+        String destination = parts[2];
+        int distance;
+
+        //Parse the distance as an integer
+        try {
+            distance = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid distance format. Please enter a valid integer distance.");
+            return;
+        }
+
+        //Add the source and destination if there aren't any
+        graph.putIfAbsent(source, new HashMap<>());
+        graph.putIfAbsent(destination, new HashMap<>());
+        graph.get(source).put(destination, distance);
     }
+    //...
+    //Continue with the rest of the program.
 }
