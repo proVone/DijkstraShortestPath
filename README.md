@@ -16,6 +16,8 @@ java DijkstraShortestPath
 
 ## Usage
 
+To input data directly from the console, type 'direct' at the program start. You can then enter the cities and their distances in the format 'source, distance, destination', or type 'stop' to finish.
+
 ```java
 //Enter nodes and their connections like so
 
@@ -27,6 +29,7 @@ t2, 1, f
 
 stop
 ```
+If you choose to input from a CSV file, type 'file' and then provide the file path when prompted.
 
 ## Contributing
 
